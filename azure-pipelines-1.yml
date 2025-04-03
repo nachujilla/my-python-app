@@ -6,7 +6,7 @@ pool:
 resources:
   pipelines:
   - pipeline: CI  # Reference to the CI pipeline
-    source: PythonWebAppCI-CD  # Replace with your CI pipeline name
+    source: nachujilla.my-python-app
     trigger:
       branches:
         - main
