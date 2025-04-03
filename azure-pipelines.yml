@@ -17,10 +17,14 @@ steps:
 - script: |
     pip install --upgrade pip
     pip install -r requirements.txt
+    pip install requests  # Install the requests library
   displayName: 'Install dependencies'
 
 - script: |
-    python app.py # This will run your Flask app, but we're mainly checking for errors
+    python app.py &  # Run Flask app in the background (& on Linux/macOS, start-process on Windows)
+    sleep 5          # Give the server a few seconds to start
+    python -c "import requests; try: requests.get('http://127.0.0.1:5000'); print('Flask app started successfully'); except requests.exceptions.ConnectionError: print('Flask app did not start in time'); exit(1)"
+    taskkill /F /IM  python.exe # Terminate the Flask app process (pkill on Linux/macOS, taskkill on Windows)
   displayName: 'Run Python App (Basic Check)'
 
 - task: PublishBuildArtifacts@1
