@@ -6,7 +6,7 @@ pool:
 resources:
   pipelines:
   - pipeline: CI  # Reference to the CI pipeline
-    source: nachujilla.my-python-app
+    source: my-python-app
     trigger:
       branches:
         - main
