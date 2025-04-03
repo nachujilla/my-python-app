@@ -1,0 +1,41 @@
+trigger: none  # This pipeline triggers after CI completes
+
+pool:
+  vmImage: 'windows-latest'
+
+resources:
+  pipelines:
+  - pipeline: CI  # Reference to the CI pipeline
+    source: PythonWebAppCI-CD  # Replace with your CI pipeline name
+    trigger:
+      branches:
+        - main
+
+stages:
+- stage: Deploy
+  dependsOn: []  # No dependencies, it runs when triggered
+  condition: succeeded()
+  jobs:
+  - deployment: DeployWebApp
+    displayName: Deploy to Azure App Service
+    environment: 'Production'  # Define an environment in Azure DevOps
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download CI Build Artifacts'
+            inputs:
+              buildType: 'specific'
+              project: '$(System.TeamProject)'
+              pipeline: '$(resources.pipeline.CI)'  # Reference CI pipeline
+              artifactName: 'drop'
+              downloadPath: '$(Build.ArtifactStagingDirectory)'
+
+          - task: AzureWebApp@1
+            displayName: 'Deploy to Azure App Service'
+            inputs:
+              azureSubscription: 'Your Azure Subscription Name'  # Replace with your Azure subscription
+              appType: 'webApp'
+              appName: 'YourWebAppName'  # Replace with your Azure Web App name
+              package: '$(Build.ArtifactStagingDirectory)/drop'
