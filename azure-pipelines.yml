@@ -1,7 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, analyze code, and publish artifacts.
-
 trigger:
   - main
 
@@ -17,13 +13,27 @@ steps:
 - script: |
     pip install --upgrade pip
     pip install -r requirements.txt
+    pip install requests
   displayName: 'Install dependencies'
 
 - script: |
-    python app.py &  # Run Flask app in the background (& on Linux/macOS, start-process on Windows)
-    sleep 5          # Give the server a few seconds to start
-    python -c "import requests; try: requests.get('http://127.0.0.1:5000'); print('Flask app started successfully'); except requests.exceptions.ConnectionError: print('Flask app did not start in time'); exit(1)"
-    taskkill /F /IM  python.exe # Terminate the Flask app process (pkill on Linux/macOS, taskkill on Windows)
+    # Start Flask app in the background
+    $process = Start-Process -NoNewWindow -PassThru -FilePath "python" -ArgumentList "app.py"
+
+    # Wait for Flask to start
+    Start-Sleep -Seconds 5
+
+    # Check if the Flask app is responding
+    python -c "import requests; import sys; 
+    try: 
+        r = requests.get('http://127.0.0.1:5000') 
+        print('Flask app started successfully') 
+    except requests.exceptions.ConnectionError: 
+        print('Flask app did not start in time') 
+        sys.exit(1)"
+
+    # Stop the Flask app
+    Stop-Process -Id $process.Id -Force
   displayName: 'Run Python App (Basic Check)'
 
 - task: PublishBuildArtifacts@1
@@ -31,3 +41,4 @@ steps:
     PathtoPublish: '$(Build.SourcesDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'pipeline'
+  displayName: 'Publish Artifacts'
