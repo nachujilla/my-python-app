@@ -16,7 +16,7 @@ steps:
     pip install requests
   displayName: 'Install dependencies'
 
-- script: |
+- powershell: |
     # Start Flask app in the background
     $process = Start-Process -NoNewWindow -PassThru -FilePath "python" -ArgumentList "app.py"
 
@@ -24,13 +24,13 @@ steps:
     Start-Sleep -Seconds 5
 
     # Check if the Flask app is responding
-    python -c "import requests; import sys; 
-    try: 
-        r = requests.get('http://127.0.0.1:5000') 
-        print('Flask app started successfully') 
-    except requests.exceptions.ConnectionError: 
-        print('Flask app did not start in time') 
-        sys.exit(1)"
+    try {
+        $response = Invoke-WebRequest -Uri "http://127.0.0.1:5000" -UseBasicParsing
+        Write-Host "Flask app started successfully"
+    } catch {
+        Write-Host "Flask app did not start in time"
+        exit 1
+    }
 
     # Stop the Flask app
     Stop-Process -Id $process.Id -Force
