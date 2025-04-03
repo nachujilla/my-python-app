@@ -28,14 +28,14 @@ stages:
             inputs:
               buildType: 'specific'
               project: '$(System.TeamProject)'
-              pipeline: '$(resources.pipeline.CI)'  # Reference CI pipeline
+              pipeline: 'my-python-app-CI'  # Ensure it matches the CI pipeline name
               artifactName: 'drop'
               downloadPath: '$(Build.ArtifactStagingDirectory)'
 
           - task: AzureWebApp@1
             displayName: 'Deploy to Azure App Service'
             inputs:
-              azureSubscription: 'Your Azure Subscription Name'  # Replace with your Azure subscription
+              azureSubscription: 'Azure subscription 1'
               appType: 'webApp'
-              appName: 'YourWebAppName'  # Replace with your Azure Web App name
+              appName: 'flask-app-devops'
               package: '$(Build.ArtifactStagingDirectory)/drop'
