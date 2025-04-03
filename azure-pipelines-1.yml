@@ -18,7 +18,7 @@ stages:
   jobs:
   - deployment: DeployWebApp
     displayName: Deploy to Azure App Service
-    environment: 'Production'  # Define an environment in Azure DevOps
+    environment: 'Production'
     strategy:
       runOnce:
         deploy:
@@ -35,7 +35,7 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Deploy to Azure App Service'
             inputs:
-              azureSubscription: 'Azure subscription 1'
+              azureSubscription: 'AzureDevOps-ServiceConnection'
               appType: 'webApp'
               appName: 'flask-app-devops'
               package: '$(Build.ArtifactStagingDirectory)/drop'
